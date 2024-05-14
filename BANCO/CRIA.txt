@@ -1,0 +1,44 @@
+----------------------------------------------------------------------PARTE DE USUARIO -- EMPRESA -- FUNCIONARIOS -------------------
+
+CREATE TABLE empresas (
+    Nome_empresa VARCHAR(255) NOT NULL,
+    WHATZAP VARCHAR(255),
+    ENDERECO_COMPLETO VARCHAR(255),
+    CIDADE VARCHAR(100),
+    ESTADO VARCHAR(50),
+    PRIMARY KEY (Nome_empresa)
+);
+
+CREATE TABLE usuarios (
+    Nome_empresa VARCHAR(255) NOT NULL,
+    USUARIO VARCHAR(100) NOT NULL,
+    SENHA VARCHAR(255) NOT NULL,
+    NOME_USUARIO VARCHAR(255),
+    PRIMARY KEY (USUARIO),
+    SN_USER_ADMVARCHAR(5)
+    FOREIGN KEY (Nome_empresa) REFERENCES empresas (Nome_empresa)
+);
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+----------------------------------------------------------------------PARTE DE ESTOQUE---------------------------------------------
+
+CREATE TABLE itens (
+    CODIGO INT PRIMARY KEY AUTO_INCREMENT,
+    TITULO VARCHAR(255),
+    DESCRICAO TEXT,
+    FOTO VARCHAR(255),
+    VALOR_COMPRA DECIMAL(10, 2),
+    VALOR_VENDA DECIMAL(10, 2),
+    LUCRO DECIMAL(10, 2),
+    Nome_empresa VARCHAR(255)
+    FOREIGN KEY (Nome_empresa) REFERENCES empresas (Nome_empresa); 
+);
+-----------------------------------------------------------------------------------------------------------------------------------
+
+
