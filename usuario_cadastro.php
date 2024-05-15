@@ -7,20 +7,39 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit;
 }
 
+// Inclui o arquivo de conexão com o banco de dados
+include 'banco.php';
+
 // Armazena o nome da empresa em uma variável para fácil acesso
 $nomeEmpresa = $_SESSION['empresa'];
 
-// Inclui o arquivo de conexão com o banco de dados
-include 'banco.php';
+// Consulta para obter a foto da empresa
+if ($conn) {
+    $sql = "SELECT FOTO_EMPRESA FROM empresas WHERE Nome_empresa = ?";
+    if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("s", $nomeEmpresa);
+        $stmt->execute();
+        $stmt->bind_result($fotoEmpresa);
+        if ($stmt->fetch()) {
+            $fotoPerfil = $fotoEmpresa ?: 'img/default.jpg';
+        }
+        $stmt->close();
+    } else {
+        echo "Erro: " . $conn->error;
+    }
+    $conn->close();
+} else {
+    echo "Erro: Conexão ao banco de dados falhou.";
+}
 
 // Verifica se o formulário foi enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Obtém e sanitiza os dados do formulário
     $nome_empresa = $conn->real_escape_string($_POST['nome_empresa']);
-    $usuario      = $conn->real_escape_string($_POST['usuario']);
-    $senha        = password_hash($_POST['senha'], PASSWORD_DEFAULT); // Utiliza hash na senha
+    $usuario = $conn->real_escape_string($_POST['usuario']);
+    $senha = $conn->real_escape_string($_POST['senha']);
     $nome_usuario = $conn->real_escape_string($_POST['nome_usuario']);
-    $sn_user_adm  = $conn->real_escape_string($_POST['sn_user_adm']);
+    $sn_user_adm = $conn->real_escape_string($_POST['sn_user_adm']);
 
     // Cria a query SQL para inserir os dados
     $sql = "INSERT INTO usuarios (Nome_empresa, USUARIO, SENHA, NOME_USUARIO, SN_USER_ADM) VALUES (?, ?, ?, ?, ?)";
@@ -48,6 +67,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Fecha a conexão
     $conn->close();
 }
+
+    include 'NavBar.php';
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -55,78 +77,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Usuário</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
+        body, html {
             margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
             background-color: #f4f4f4;
-        }
-        .header {
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .menu-btn {
-            background-color: #007bff;
-            border: none;
-            padding: 8px 15px;
-            color: white;
-            cursor: pointer;
-            font-size: 18px;
-            border-radius: 5px;
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        .navbar {
-            height: 100%;
-            width: 0;
-            position: fixed;
-            z-index: 1;
-            top: 0;
-            left: 0;
-            background-color: #111;
-            overflow-x: hidden;
-            transition: 0.5s;
-            padding-top: 60px;
-        }
-        .navbar a, .dropdown-btn {
-            padding: 15px 20px;
-            text-decoration: none;
-            font-size: 25px;
-            color: white;
-            display: block;
-            transition: 0.3s;
-        }
-        .navbar a:hover, .dropdown-btn:hover {
-            background-color: #ddd;
-            color: black;
-        }
-        .dropdown-container {
-            display: none;
-            background-color: #262626;
-            padding-left: 8px;
-        }
-        .closebtn {
-            position:absolute;
-            top: 0;
-            right: 25px;
-            font-size: 36px;
-            margin-left: 50px;
-            color: white;
         }
         form {
             max-width: 300px;
-            margin: 100px auto 50px;
+            margin: 70px auto 50px;
             padding: 20px;
             background-color: #fff;
             border: 1px solid #ccc;
@@ -134,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         label {
             margin-bottom: 5px;
-            font-weight:bold;
+            font-weight: bold;
         }
         input[type="text"], input[type="password"], input[type="number"], select {
             width: calc(100% - 22px);
@@ -147,7 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 10px 20px;
             border: none;
             border-radius: 4px;
-            cursor:pointer;
+            cursor: pointer;
             width: calc(50% - 11px);
         }
         input[type="submit"] {
@@ -162,86 +123,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 </head>
 <body>
-
-<div class="header">
-    <h1>Cadastro usuario</h1>
-    <button class="menu-btn" onclick="toggleNav()">☰</button>
-</div>
-
-<div id="myNavbar" class="navbar">
-    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-
-    <a href="javascript:void(0)" class="dropdown-btn">Item</a>
-    <div class="dropdown-container">
-        <a href="Cadastro_item.php">Cadastro Item</a>
-        <a href="item_edicao.php">Editar Item</a>
-    </div>
-
-    <a href="javascript:void(0)" class="dropdown-btn">Usuarios</a>
-    <div class="dropdown-container">
-        <a href="usuario_cadastro.php">Cadastro Usuarios</a>
-        <a href="">Editar Usuarios</a>
-    </div>
-
-    <a href="javascript:void(0)" class="dropdown-btn">Cardapio</a>
-    <div class="dropdown-container">
-        <a href="Cardapio.php">Meu Cardapio</a>
-        
-    </div>
-    
-</div>
-
-
-<script>
-    function toggleNav() {
-        var navbar = document.getElementById("myNavbar");
-        if (navbar.style.width === "250px") {
-            navbar.style.width = "0";
-        } else {
-            navbar.style.width = "250px";
-        }
-    }
-
-    function closeNav() {
-        document.getElementById("myNavbar").style.width = "0";
-    }
-
-    var dropdown = document.getElementsByClassName("dropdown-btn");
-    for (var i = 0; i < dropdown.length; i++) {
-        dropdown[i].addEventListener("click", function() {
-            this.classList.toggle("active");
-            var dropdownContent = this.nextElementSibling;
-            if (dropdownContent.style.display === "block") {
-                dropdownContent.style.display = "none";
-            } else {
-                dropdownContent.style.display = "block";
-            }
-        });
-    }
-</script>
-
-<form action="" method="POST">
-    <label for="nome_empresa">Nome da Empresa:</label>
-    <input type="text" id="nome_empresa" name="nome_empresa" required autocomplete="off" value="<?php echo htmlspecialchars($nomeEmpresa); ?>"readonly>
-
-    <label for="usuario">Usuário:</label>
-    <input type="text" id="usuario" name="usuario" required autocomplete="off">
-
-    <label for="senha">Senha:</label>
-    <input type="password" id="senha" name="senha" required autocomplete="off">
-
-    <label for="nome_usuario">Nome Completo do Usuário:</label>
-    <input type="text" id="nome_usuario" name="nome_usuario" autocomplete="off">
-
-    <label for="sn_user_adm">Usuário ADM:</label>
-    <select id="sn_user_adm" name="sn_user_adm" required>
-        <option value="SIM">SIM</option>
-        <option value="NÃO">NÃO</option>
-    </select>
-
-    <input type="submit" value="Cadastrar">
-    <button type="button" onclick="alert('Cancelado!'); window.history.back();">Cancelar</button>
-</form>
-
+    <form action="" method="POST">
+        <label for="nome_empresa">Nome da Empresa:</label>
+        <input type="text" id="nome_empresa" name="nome_empresa" required autocomplete="off" value="<?php echo htmlspecialchars($nomeEmpresa); ?>" readonly>
+        <label for="usuario">Usuário:</label>
+        <input type="text" id="usuario" name="usuario" required autocomplete="off">
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" name="senha" required autocomplete="off">
+        <label for="nome_usuario">Nome Completo do Usuário:</label>
+        <input type="text" id="nome_usuario" name="nome_usuario" autocomplete="off">
+        <label for="sn_user_adm">Usuário ADM:</label>
+        <select id="sn_user_adm" name="sn_user_adm" required>
+            <option value="SIM">SIM</option>
+            <option value="NÃO">NÃO</option>
+        </select>
+        <input type="submit" value="Cadastrar">
+        <button type="button" onclick="alert('Cancelado!'); window.history.back();">Cancelar</button>
+    </form>
 </body>
 </html>
