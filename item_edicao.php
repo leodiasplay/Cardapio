@@ -43,7 +43,7 @@ if (isset($conn) && !$conn->connect_error) {
     $conn->close(); // Fecha a conexão somente após todas as operações
 }
 
- include 'Navbar.php';
+ include 'NavBar.php';
 ?>
 
 <!DOCTYPE html>

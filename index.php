@@ -27,7 +27,7 @@ if ($stmt = $conn->prepare($sql)) {
 }
 $conn->close();
 
-
+include 'NavBar.php';
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -45,11 +45,6 @@ $conn->close();
     </style>
 </head>
 <body>
-
-    <?php
-     include 'Navbar.php';
-    ?>
-   
-
+    
 </body>
 </html>

@@ -10,7 +10,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 // Armazena o nome da empresa em uma variável para fácil acesso
 $nomeEmpresa = $_SESSION['empresa'];
 
-include 'Navbar.php';
+include 'NavBar.php';
 
 ?>
 
