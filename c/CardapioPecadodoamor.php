@@ -180,11 +180,10 @@
 <div class="menu-section">
     <?php
     include 'banco.php';
-    $nomeEmpresa = $_SESSION['empresa'];  // Assume que esta variável já foi definida anteriormente
-    $sql = "SELECT titulo, descricao, foto, valor_venda FROM itens i WHERE i.Nome_empresa = ?";
+    // Removido a linha que pega o nome da empresa da sessão
+    $sql = "SELECT titulo, descricao, foto, valor_venda FROM itens i WHERE i.Nome_empresa = 'pecado_sensual'";  // Nome da empresa fixo na query
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $nomeEmpresa);
-    $stmt->execute();
+    $stmt->execute(); // Removida a parte de bind_param, já que não é mais necessário
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
@@ -209,6 +208,7 @@
     $conn->close();
     ?>
 </div>
+
 
 <div class="cart-info">
     <div>Total Itens: <span class="total-items">0</span> | Total Preço: R$<span class="total-price">0,00</span></div>
