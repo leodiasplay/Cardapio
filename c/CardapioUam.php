@@ -189,7 +189,7 @@
     if ($result->num_rows > 0) {
         while ($item = $result->fetch_assoc()) {
             echo '<div class="menu-item">';
-            echo '<img src="uploads/' . htmlspecialchars($item['foto']) . '" alt="' . htmlspecialchars($item['titulo']) . '">';
+            echo '<img src="img/' . htmlspecialchars($item['foto']) . '" alt="' . htmlspecialchars($item['titulo']) . '">';
             echo '<div class="menu-item-info">';
             echo '<h3>' . htmlspecialchars($item['titulo']) . '</h3>';
             echo '<p>' . htmlspecialchars($item['descricao']) . '</p>';

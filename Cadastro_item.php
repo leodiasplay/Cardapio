@@ -99,7 +99,7 @@ include 'NavBar.php';
 
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cadastrar'])) {
-    include 'banco.php'; // Assegure-se de incluir o arquivo de conexão corretamente
+    include 'banco.php';
 
     $titulo       = $_POST['titulo'];
     $descricao    = $_POST['descricao'];
@@ -108,16 +108,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cadastrar'])) {
     $valorVenda   = $_POST['valor_venda'];
     $lucro        = $_POST['lucro'];
 
+    // Diretório de upload original
     $diretorioUpload = 'uploads/';
     if (!is_dir($diretorioUpload)) {
-        mkdir($diretorioUpload, 0777, true); // Cria o diretório se ele não existir
+        mkdir($diretorioUpload, 0777, true);
     }
     $caminhoCompleto = $diretorioUpload . basename($fotoNome);
 
-    if (move_uploaded_file($_FILES['foto']['tmp_name'], $caminhoCompleto)) {
-        echo "O arquivo " . htmlspecialchars(basename($fotoNome)) . " foi carregado.";
+    // Diretório adicional para upload
+    $diretorioCardapio = 'c/img/';
+    if (!is_dir($diretorioCardapio)) {
+        mkdir($diretorioCardapio, 0777, true);
+    }
+    $caminhoCardapio = $diretorioCardapio . basename($fotoNome);
+
+    // Primeiro copia para o diretório Cardapio/c/img
+    if (copy($_FILES['foto']['tmp_name'], $caminhoCardapio)) {
+        echo "O arquivo " . htmlspecialchars(basename($fotoNome)) . " foi carregado em Cardapio/c/img.<br>";
     } else {
-        echo "Ocorreu um erro ao fazer upload do arquivo.";
+        echo "Ocorreu um erro ao fazer upload do arquivo em Cardapio/c/img.<br>";
+    }
+
+    // Em seguida, move para a pasta uploads
+    if (move_uploaded_file($_FILES['foto']['tmp_name'], $caminhoCompleto)) {
+        echo "O arquivo " . htmlspecialchars(basename($fotoNome)) . " foi carregado em uploads.<br>";
+    } else {
+        echo "Ocorreu um erro ao fazer upload do arquivo em uploads.<br>";
     }
 
     $sql = "INSERT INTO itens (TITULO, DESCRICAO, FOTO, VALOR_COMPRA, VALOR_VENDA, LUCRO, Nome_empresa) VALUES (?, ?, ?, ?, ?, ?, ?)";
