@@ -68,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->close();
 }
 
-    include 'NavBar.php';
+    include 'Navbar.php';
 
 ?>
 <!DOCTYPE html>
