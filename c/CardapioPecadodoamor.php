@@ -21,7 +21,7 @@
     body {
         font-family: 'Arial', sans-serif;
         margin: 0;
-        padding: 0;
+        padding: 0 0 50px 0; /* Adiciona padding inferior de 50px */
         background: #f4f4f4;
     }
     .nav-bar {
@@ -38,29 +38,28 @@
     }
     .menu-section {
         display: grid;
-        grid-template-columns: repeat(2, 1fr); /* Alterado para exibir 2 itens por linha */
+        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
         padding: 20px;
-        margin: 10px auto;
+        margin: 5px auto;
         max-width: 1200px;
     }
     .menu-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         background: white;
         border: 1px solid #ddd;
         padding: 10px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column; 
-        align-items: center;
-        justify-content: center; 
-        min-height: 150px; 
-        width: 150px; 
+        min-height: 150px;
+        width: 150px;
     }  
     .menu-item img {
-        width: auto;
-        max-width: 148px;
-        max-height: 148px;
-        height: auto;
+        width: 100%;  /* Largura fixa */
+        height: 180px; /* Altura fixa */
+        object-fit: cover; /* Garante que a imagem cubra o espaço designado sem distorcer */
         border-radius: 8px;
         margin-bottom: 10px;
     }
@@ -97,6 +96,7 @@
         text-align: center;
     }
     .cart-info {
+        display: none; /* Initially hidden */
         position: fixed;
         bottom: 0;
         left: 0;
@@ -180,8 +180,12 @@
 <div class="menu-section">
     <?php
     include 'banco.php';
-    $sql = "SELECT titulo, descricao, foto, valor_venda FROM itens i where i.Nome_empresa = 'PECADODOAMOR'";
-    $result = $conn->query($sql);
+    $nomeEmpresa = $_SESSION['empresa'];  // Assume que esta variável já foi definida anteriormente
+    $sql = "SELECT titulo, descricao, foto, valor_venda FROM itens i WHERE i.Nome_empresa = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $nomeEmpresa);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         while ($item = $result->fetch_assoc()) {
@@ -219,7 +223,8 @@
         <label>Rua:</label>
         <input type="text" id="street" name="street" required>
         <label>Tipo Local:</label>
-        <input type="text" id="type" name="type" required>
+	
+	<input type="text" id="type" name="type" required>
         <label>Número:</label>
         <input type="text" id="number" name="number" required>
         <label>Troco para:</label>
@@ -237,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let orderItems = new Map();  // Usando um Map para armazenar itens e suas quantidades
 
     function updateOrderDescription() {
-        orderDescription = '';
+        let orderDescription = '';
         orderItems.forEach((quantity, name) => {
             if (quantity > 0) {
                 orderDescription += `${name} x${quantity}, `; // Formata cada item com sua quantidade
@@ -245,6 +250,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         if (orderDescription.length > 0) {
             orderDescription = orderDescription.slice(0, -2);  // Remove a última vírgula e espaço
+        }
+        return orderDescription;
+    }
+
+    function updateCartInfo() {
+        document.querySelector('.total-items').textContent = totalItems;
+        document.querySelector('.total-price').textContent = totalPrice.toFixed(2).replace('.', ',');
+        
+        // Mostra o carrinho se houver itens, esconde se não houver
+        const cartInfo = document.querySelector('.cart-info');
+        if (totalItems > 0) {
+            cartInfo.style.display = 'flex';
+        } else {
+            cartInfo.style.display = 'none';
         }
     }
 
@@ -263,7 +282,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 totalItems--;
                 totalPrice -= price;
                 orderItems.set(itemName, currentQuantity);  // Atualiza a quantidade no Map
-                updateOrderDescription();
                 updateCartInfo();
             }
         });
@@ -275,15 +293,12 @@ document.addEventListener('DOMContentLoaded', function() {
             totalItems++;
             totalPrice += price;
             orderItems.set(itemName, currentQuantity);  // Atualiza a quantidade no Map
-            updateOrderDescription();
             updateCartInfo();
         });
     });
 
-    function updateCartInfo() {
-        document.querySelector('.total-items').textContent = totalItems;
-        document.querySelector('.total-price').textContent = totalPrice.toFixed(2).replace('.', ',');
-    }
+    // Inicializar o carrinho oculto
+    updateCartInfo();
 
     const finalizeButton = document.querySelector('.finalize-btn');
     const cancelButton = document.querySelector('.cancel-btn');
@@ -304,7 +319,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const street = document.getElementById('street').value;
         const type = document.getElementById('type').value;
         const number = document.getElementById('number').value;
-        const change = document.getElementById('change').value;
+        const change = document.getElementById('change').edValue;
+        const orderDescription = updateOrderDescription();
 
         const message = `Olá, segue abaixo o meu pedido:\n\nItens:\n${orderDescription}\n\nLocal de entrega:\nRua: ${street}, ${type}, ${number}\nTroco para: ${change}\nTotal Preço: R$${totalPrice.toFixed(2).replace('.', ',')}`;
 
@@ -338,8 +354,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
-
 
 </body>
 </html>
