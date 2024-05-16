@@ -1,15 +1,4 @@
-<?php
-    session_start(); // Inicia a sessão
 
-    if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-        // Se não estiver logado, redireciona para a página de login
-        header("Location: login.php");
-        exit;
-    }
-
-    // Armazena o nome da empresa em uma variável para fácil acesso
-    $nomeEmpresa = $_SESSION['empresa'];
-?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -180,7 +169,7 @@
 <div class="menu-section">
     <?php
     include 'banco.php';
-    $sql = "SELECT titulo, descricao, foto, valor_venda FROM itens i where i.Nome_empresa = 'PECADODOAMOR'";
+    $sql = "SELECT titulo, descricao, foto, valor_venda FROM itens i where i.Nome_empresa = 'pecado_sensual'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
