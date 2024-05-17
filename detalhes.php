@@ -60,6 +60,14 @@
         .btn-secondary:hover {
             background-color: #5a6268;
         }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            margin-top: 10px;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
 
         /* Media query for mobile devices */
         @media (max-width: 600px) {
@@ -77,10 +85,17 @@
             }
         }
     </style>
+    <script>
+        function confirmarExclusao() {
+            if (confirm("Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.")) {
+                window.location.href = 'excluir_item.php?codigo=' + document.getElementsByName('codigo')[0].value;
+            }
+        }
+    </script>
 </head>
 <body>
     
-    <h2>Atualizar item</h1>
+    <h2>Atualizar item</h2>
 
     <?php
     include 'banco.php';
@@ -114,6 +129,7 @@
                 <input type='text' id='lucro' name='lucro' value='{$row['LUCRO']}' />
 
                 <button type='submit'>Atualizar</button>
+                <button type='button' class='btn-danger' onclick='confirmarExclusao()'>Excluir</button>
                 <button type='button' class='btn-secondary' onclick='window.location=\"item_edicao.php\"'>Voltar</button>
               </form>";
     } else {
