@@ -105,7 +105,7 @@
         <div class="profile">
             <img src="<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Perfil">
             <div class="name"><?php echo htmlspecialchars($nomeEmpresa); ?></div>
-            <div class="email">Joaolanches@gmail.com</div>
+            
         </div>
 
         <div class="menu-item" onclick="toggleSubmenu('user-submenu')"><i class="fas fa-user"></i>Usuários</div>
